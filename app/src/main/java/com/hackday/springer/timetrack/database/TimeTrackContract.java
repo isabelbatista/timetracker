@@ -15,5 +15,6 @@ public final class TimeTrackContract {
     public static class TimeTrackEntry implements BaseColumns {
         public static final String TABLE_NAME = "timetrack";
         public static final String COLUMN_START_WORK_TIME = "start_work_time";
+        public static final String COLUMN_STOP_WORK_TIME = "stop_work_time";
     }
 }

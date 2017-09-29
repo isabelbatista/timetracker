@@ -1,6 +1,5 @@
 package com.hackday.springer.timetrack;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -12,28 +11,25 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.TextView;
 
-import com.hackday.springer.timetrack.database.TimeTrackContract;
 import com.hackday.springer.timetrack.database.TimeTrackReaderDbHelper;
 
-import java.io.File;
-import java.io.IOException;
-
 public class EntryActivity extends AppCompatActivity {
+
+    TimeTrackReaderDbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        final File contextPath = getApplicationContext().getFilesDir();
-        final TimeFileManager fileWriter = new TimeFileManager(contextPath.getAbsolutePath());
-
+        dbHelper = new TimeTrackReaderDbHelper(getApplicationContext());
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,7 +37,7 @@ public class EntryActivity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         final Button buttonStartWork = (Button) findViewById(R.id.btn_startWork);
         buttonStartWork.setOnClickListener(new View.OnClickListener() {
@@ -49,21 +45,11 @@ public class EntryActivity extends AppCompatActivity {
                 // Code here executes on main thread after user presses button
                 System.out.println("Button to start work pressed.");
                 long startedWork = System.currentTimeMillis();
-                String lineToWrite = fileWriter.generateLineToWrite(startedWork);
 
-                String date = TimeCalculator.calcDateFromMilliseconds(startedWork);
-                String time = TimeCalculator.calcTimeFromMilliseconds(startedWork);
                 String dateTime = TimeCalculator.calcDateAndTimeFromMilliseconds(startedWork);
-                long id = saveTimeTrackToDb(dateTime);
+                long id = dbHelper.saveStartWorkDateTime(dateTime);
                 System.out.println("Saved id to db: " + id);
-
-                try {
-                    fileWriter.writeFile(String.valueOf(lineToWrite.toString()));
-                    startActivityShowTracks();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                startActivityShowTracks();
             }
         });
 
@@ -72,6 +58,11 @@ public class EntryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
                 System.out.println("Button to stop work pressed.");
+                long stoppedWork = System.currentTimeMillis();
+                String dateTime = TimeCalculator.calcDateAndTimeFromMilliseconds(stoppedWork);
+                long id = dbHelper.saveStopWorkDateTime(dateTime);
+                System.out.println("Updated track with id " + id);
+                startActivityShowTracks();
             }
         });
 
@@ -119,15 +110,9 @@ public class EntryActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private long saveTimeTrackToDb(String dateTime) {
-
-        final TimeTrackReaderDbHelper dbHelper = new TimeTrackReaderDbHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TimeTrackContract.TimeTrackEntry.COLUMN_START_WORK_TIME, dateTime);
-        long newRowId = db.insert(TimeTrackContract.TimeTrackEntry.TABLE_NAME, null, values);
-
-        return newRowId;
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 }

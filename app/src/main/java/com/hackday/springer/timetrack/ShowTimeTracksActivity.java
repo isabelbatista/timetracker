@@ -22,13 +22,10 @@ import java.util.List;
 
 public class ShowTimeTracksActivity extends AppCompatActivity {
 
-
+    TimeTrackReaderDbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        final File contextPath = getApplicationContext().getFilesDir();
-        final TimeFileManager fileWriter = new TimeFileManager(contextPath.getAbsolutePath());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show);
@@ -52,7 +49,7 @@ public class ShowTimeTracksActivity extends AppCompatActivity {
 
     private List<TimeTrackDTO> findTimeTracksInDb() {
 
-        final TimeTrackReaderDbHelper dbHelper = new TimeTrackReaderDbHelper(getApplicationContext());
+        dbHelper = new TimeTrackReaderDbHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String[] projection = {TimeTrackContract.TimeTrackEntry._ID, TimeTrackContract.TimeTrackEntry.COLUMN_START_WORK_TIME};
@@ -81,5 +78,13 @@ public class ShowTimeTracksActivity extends AppCompatActivity {
             tracks.add(track);
         }
         return tracks;
+    }
+
+    // TODO: introduce method to empty the database
+
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 }
