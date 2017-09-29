@@ -1,5 +1,6 @@
 package com.hackday.springer.timetrack;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,7 +20,7 @@ public class EntryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        File contextPath = getApplicationContext().getFilesDir();
+        final File contextPath = getApplicationContext().getFilesDir();
         final TimeFileManager fileWriter = new TimeFileManager(contextPath.getAbsolutePath());
 
         super.onCreate(savedInstanceState);
@@ -47,8 +48,7 @@ public class EntryActivity extends AppCompatActivity {
 
                 try {
                     fileWriter.writeFile(String.valueOf(lineToWrite.toString()));
-                    TextView textView = (TextView) findViewById(R.id.showFileContentTextView);
-                    textView.setText(fileWriter.readFile());
+                    startActivityShowTracks();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -101,5 +101,10 @@ public class EntryActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startActivityShowTracks() {
+        Intent intent = new Intent(this, ShowTimeTracksActivity.class);
+        startActivity(intent);
     }
 }
