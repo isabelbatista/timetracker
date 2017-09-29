@@ -41,8 +41,12 @@ public class EntryActivity extends AppCompatActivity {
 
                 System.out.println("Button to start work pressed.");
                 long startedWork = System.currentTimeMillis();
+                String date = TimeCalculator.calcDateFromMilliseconds(startedWork);
+                String time = TimeCalculator.calcTimeFromMilliseconds(startedWork);
+                StringBuilder textToWriteToFile = new StringBuilder("Today is " + date + "\n");
+                textToWriteToFile.append("You started work at " + time);
                 try {
-                    fileWriter.writeFile(String.valueOf(startedWork));
+                    fileWriter.writeFile(String.valueOf(textToWriteToFile.toString()));
                     TextView textView = (TextView) findViewById(R.id.showFileContentTextView);
                     textView.setText(fileWriter.readFile());
                 } catch (IOException e) {
