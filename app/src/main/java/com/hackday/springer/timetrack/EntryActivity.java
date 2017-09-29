@@ -1,6 +1,8 @@
 package com.hackday.springer.timetrack;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +14,9 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.hackday.springer.timetrack.database.TimeTrackContract;
+import com.hackday.springer.timetrack.database.TimeTrackReaderDbHelper;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -22,6 +27,7 @@ public class EntryActivity extends AppCompatActivity {
 
         final File contextPath = getApplicationContext().getFilesDir();
         final TimeFileManager fileWriter = new TimeFileManager(contextPath.getAbsolutePath());
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
@@ -45,6 +51,11 @@ public class EntryActivity extends AppCompatActivity {
                 long startedWork = System.currentTimeMillis();
                 String lineToWrite = fileWriter.generateLineToWrite(startedWork);
 
+                String date = TimeCalculator.calcDateFromMilliseconds(startedWork);
+                String time = TimeCalculator.calcTimeFromMilliseconds(startedWork);
+                String dateTime = TimeCalculator.calcDateAndTimeFromMilliseconds(startedWork);
+                long id = saveTimeTrackToDb(dateTime);
+                System.out.println("Saved id to db: " + id);
 
                 try {
                     fileWriter.writeFile(String.valueOf(lineToWrite.toString()));
@@ -106,5 +117,17 @@ public class EntryActivity extends AppCompatActivity {
     public void startActivityShowTracks() {
         Intent intent = new Intent(this, ShowTimeTracksActivity.class);
         startActivity(intent);
+    }
+
+    private long saveTimeTrackToDb(String dateTime) {
+
+        final TimeTrackReaderDbHelper dbHelper = new TimeTrackReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TimeTrackContract.TimeTrackEntry.COLUMN_START_WORK_TIME, dateTime);
+        long newRowId = db.insert(TimeTrackContract.TimeTrackEntry.TABLE_NAME, null, values);
+
+        return newRowId;
     }
 }
