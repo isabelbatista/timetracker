@@ -13,6 +13,8 @@ import java.io.IOException;
 public class TimeFileManager {
 
     private File file;
+    private static final String TOKEN_SEPARATOR = ";";
+    private static final String LINE_BREAK = "\n";
 
     public TimeFileManager(String path) {
         file = new File(path, "timetrack.csv");
@@ -46,7 +48,31 @@ public class TimeFileManager {
     }
 
     private String generateTitleLine() {
-        return null;
+        StringBuilder titleLine = new StringBuilder();
+        titleLine.append("Date" + TOKEN_SEPARATOR);
+        titleLine.append("Started Working" + TOKEN_SEPARATOR);
+        titleLine.append("Break Start" + TOKEN_SEPARATOR);
+        titleLine.append("Break End" + TOKEN_SEPARATOR);
+        titleLine.append("Break Time Sum" + TOKEN_SEPARATOR);
+        titleLine.append("Stopped Working" + TOKEN_SEPARATOR);
+        titleLine.append("Working Time Sum (Day)" + TOKEN_SEPARATOR);
+        titleLine.append("Working Time Sum (Week)" + TOKEN_SEPARATOR);
+        titleLine.append("Working Time Sum (Month)" + TOKEN_SEPARATOR);
+        titleLine.append("+/-" + TOKEN_SEPARATOR);
+
+        return titleLine.toString();
     }
 
+    public String generateLineToWrite(long timeInMilliseconds) {
+        // TODO: move this line to initialization so it is just printed once
+        String titleLine = generateTitleLine();
+
+        String date = TimeCalculator.calcDateFromMilliseconds(timeInMilliseconds);
+        String time = TimeCalculator.calcTimeFromMilliseconds(timeInMilliseconds);
+        StringBuilder textToWriteToFile = new StringBuilder(titleLine + LINE_BREAK);
+        textToWriteToFile.append(date + TOKEN_SEPARATOR);
+        textToWriteToFile.append(time + TOKEN_SEPARATOR);
+
+        return textToWriteToFile.toString();
+    }
 }
