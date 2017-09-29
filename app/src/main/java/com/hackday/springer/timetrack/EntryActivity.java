@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.io.File;
+import java.io.IOException;
 
 public class EntryActivity extends AppCompatActivity {
 
@@ -32,7 +36,19 @@ public class EntryActivity extends AppCompatActivity {
         buttonStartWork.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
+                File contextPath = getApplicationContext().getFilesDir();
+                TimeFileManager fileWriter = new TimeFileManager(contextPath.getAbsolutePath());
+
                 System.out.println("Button to start work pressed.");
+                long startedWork = System.currentTimeMillis();
+                try {
+                    fileWriter.writeFile(String.valueOf(startedWork));
+                    TextView textView = (TextView) findViewById(R.id.showFileContentTextView);
+                    textView.setText(fileWriter.readFile());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 

@@ -8,6 +8,7 @@
     tools:context="com.hackday.springer.timetrack.EntryActivity"
     tools:showIn="@layout/activity_entry">
 
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -46,6 +47,19 @@
                 android:layout_height="wrap_content"
                 android:text="Stop Work" />
         </LinearLayout>
+
     </LinearLayout>
+
+
+
+
+    <TextView
+        android:id="@+id/showFileContentTextView"
+        android:layout_width="349dp"
+        android:layout_height="143dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="138dp" />
+
 
 </android.support.constraint.ConstraintLayout>
